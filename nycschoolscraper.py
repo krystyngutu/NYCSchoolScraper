@@ -9,32 +9,38 @@ from os.path import expanduser
 import json
 import time
 
-def timer_func(func):
+def timerFunc(func):
+
     """
     Decorator for logging function run-time as a performance counter
     """
-    def wrap_func(*args, **kwargs):
+
+    def wrapFunc(*args, **kwargs):
+
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()
         print(f'Function {func.__name__!r} executed in {(end-start):.4f}s')
-        return result
-    return wrap_func
 
-@timer_func
+        return result
+    
+    return wrapFunc
+
+@timerFunc
 def getSchoolUrls(pages):
+
     """
     Generate urls for each grouped collection of records in the school path
     :param pages: number of pages to request
     :return: list of urls
     """
+
     cachedLinkPath = os.path.join(f"{expanduser('~')}/schoolPages", 'links.json')
     if os.path.exists(cachedLinkPath):
         file = open(cachedLinkPath)
         linksJson = json.load(file)
         print(f"Found cached file of links: {cachedLinkPath}. Link count: {len(linksJson['links'])}")
         return linksJson['links'][:min(len(linksJson['links']), pages * 12)]
-
 
     baseUrl = 'https://nycmentors.org/schools'
     schoolsListItemPath = '//div[@class="schools-list__item"]/a/@href'
@@ -65,24 +71,28 @@ def getSchoolUrls(pages):
     print(f"Saved link cache to {cachedLinkPath}. Link count: {len(allLinks)}")
     return allLinks
 
-@timer_func
+@timerFunc
 def getDom(schoolLink):
+
     """
     Retrieve school information page and return HTML tree
     :param schoolLink: URL to request
     :return: HTMLElement parsed from REST response
     """
+
     linkResults = requests.get(schoolLink)
     tree = html.fromstring(linkResults.content)
     return tree
 
 def saveRequestResponsesToTextFile(schoolName, tree):
+
     """
     WIP: Cache the network responses per school
     :param schoolName:
     :param tree:
     :return:
     """
+
     try:
         with open(f'{os.path.join(expanduser("~/schoolPages"), f"{schoolName}.txt")}', 'w') as file:
             file.write(tree)
@@ -91,10 +101,12 @@ def saveRequestResponsesToTextFile(schoolName, tree):
         print(f'{ex}')
 
 def loadResponsesFromTextFile():
+
     """
     WIP: Load cached network responses per school
     :return: dictionary of school name to html string
     """
+
     try:
         loadedFiles = []
         for root, dirs, files in os.walk(f'{os.path.join(expanduser("~"), "/schoolPages")}'):
@@ -106,6 +118,7 @@ def loadResponsesFromTextFile():
         print(f'{ex}')
 
 def getSchoolName(tree):
+
     """
     Parse the school name from the tree
     :param tree: HTMLElement
@@ -118,11 +131,13 @@ def getSchoolName(tree):
     return schoolName
 
 def getGenderAndLunchInfo(tree):
+
     """
     Parse the gender breakdown and free/reduced lunch cost population
     :param tree: HTMLElement
     :return: dictionary of general topic (e.g., 'Gender') to nested dictionary of fields
     """
+
     try:
         schoolInfoDict = {}
 
@@ -148,11 +163,13 @@ def getGenderAndLunchInfo(tree):
         return {}
 
 def getBarStats(tree):
+
     """
     Parse generic bar  data visualizations for relevant topics
     :param tree: HTMLElement
     :return: Dictionary of topics to nested dictionary of fields
     """
+
     try:
         groupPath = '//div[@class="school__stats-wrap"]'
         groupTitles = groupPath + '/div[@class="bar__group"]/h3[@class="school__stats-title"]/text()'
@@ -197,11 +214,13 @@ def getBarStats(tree):
         return {}
 
 def getChartStats(tree):
+
     """
     Parse generic bar  data visualizations for relevant topics
     :param tree: HTMLElement
     :return: Dictionary of topics to nested dictionary of fields
     """
+
     try:
         groupPath = '//div[@class="school__stats-wrap"]'
         groupTitles = groupPath + '/h3[@class="school__stats-title school__stats-title--chart"]/text()'
@@ -286,12 +305,14 @@ def getChartStats(tree):
         return {}
 
 def writeOutput(outputJson, fullFilePath='./output.json'):
+
     """
     Write results to json file
     :param outputJson: JSON object containing parsed results
     :param fullFilePath: location to save file
     :return:
     """
+
     try:
         '''
         Ouput format:
@@ -316,10 +337,12 @@ def writeOutput(outputJson, fullFilePath='./output.json'):
         print(f'{ex}')
 
 def generateUniqueOutputFileName():
+
     """
     Generate a new and unique filename for new results using second-precision date-time and an atomically increasing file ID per second
     :return: string of file name
     """
+    
     nameWithTime = f'{datetime.now().strftime("%Y%m%d%H%M%S")}'
 
     maxId = 0
