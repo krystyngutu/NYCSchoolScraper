@@ -342,7 +342,7 @@ def generateUniqueOutputFileName():
     Generate a new and unique filename for new results using second-precision date-time and an atomically increasing file ID per second
     :return: string of file name
     """
-    
+
     nameWithTime = f'{datetime.now().strftime("%Y%m%d%H%M%S")}'
 
     maxId = 0
@@ -363,7 +363,7 @@ if __name__ == '__main__':
         print(f"Started at {datetime.now().strftime('%H %M %S')}")
         schoolDict = {}
 
-        schoolLinks = getSchoolUrls(pages = 20)
+        schoolLinks = getSchoolUrls(pages = 228)
         print(schoolLinks)
 
         for link in schoolLinks:
